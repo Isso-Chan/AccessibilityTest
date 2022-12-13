@@ -47,7 +47,7 @@ public class ExampleTest {
 	 * Instantiate report before all tests start
 	 */
 	@BeforeClass
-	public static void setUp1() {
+	public static void setUpBeforeClass() {
 
 		f = new File("Accessibility_Test-Report.htm");
 		try {
@@ -83,7 +83,7 @@ public class ExampleTest {
 	 * Ensure we close the report  after all tests finished
 	 */
 	@AfterClass
-	public static void tearDown2() throws IOException {
+	public static void tearDownAfterClass() throws IOException {
 		bw.write("</body>");
 		bw.write("</html>");
 		bw.close();
@@ -110,24 +110,24 @@ public class ExampleTest {
 		}
 	}
 
-	//added later from https://www.youtube.com/watch?v=vKMnOSa8xcg
-	/**
-	 * This method works separately from other classes, after running, generates a report with "methodName.htm"
-	 * @throws IOException
-	 */
-	@Test
-	public void testAccessibility2() {
-		driver.get("https://www.ebay.de/");
-		JSONObject responseJSON = (new AXE.Builder(driver, scriptUrl)).analyze();
-		violations = responseJSON.getJSONArray("violations");
-		prepareReport(testName.getMethodName());
-
-		if (violations.length() == 0) {
-			Assert.assertTrue("No violations found", true);
-		} else {
-			AXE.writeResults(testName.getMethodName(), responseJSON);
-			assertTrue(AXE.report(violations), false);
-		}
+//	//added later from https://www.youtube.com/watch?v=vKMnOSa8xcg
+//	/**
+//	 * This method works separately from other classes, after running, generates a report with "methodName.htm"
+//	 * @throws IOException
+//	 */
+//	@Test
+//	public void testAccessibility2() {
+//		driver.get("https://www.ebay.de/");
+//		JSONObject responseJSON = (new AXE.Builder(driver, scriptUrl)).analyze();
+//		violations = responseJSON.getJSONArray("violations");
+//		prepareReport(testName.getMethodName());
+//
+//		if (violations.length() == 0) {
+//			Assert.assertTrue("No violations found", true);
+//		} else {
+//			AXE.writeResults(testName.getMethodName(), responseJSON);
+//			assertTrue(AXE.report(violations), false);
+//		}
 //		WebDriverManager.chromedriver().setup();
 //		ChromeOptions options = new ChromeOptions();
 ////		options.addArguments(new String[]{"headless"});
@@ -168,7 +168,7 @@ public class ExampleTest {
 //			AXE.writeResults(testName.getMethodName(), responseJSON);
 //			assertTrue(AXE.report(violations), false);
 //		}
-	}
+//	}
 
 	public void prepareReport(String testName) {
 		try {
@@ -198,7 +198,8 @@ public class ExampleTest {
 	 */
 	@Test
 	public void testAccessibilityWithSkipFrames() {
-		driver.get("http://localhost:5005");
+//		driver.get("http://localhost:5005");
+		driver.get("https://www.ebay.de/");
 		JSONObject responseJSON = new AXE.Builder(driver, scriptUrl)
 				.skipFrames()
 				.analyze();
@@ -219,7 +220,8 @@ public class ExampleTest {
 	 */
 	@Test
 	public void testAccessibilityWithOptions() {
-		driver.get("http://localhost:5005");
+//		driver.get("http://localhost:5005");
+		driver.get("https://www.ebay.de/");
 		JSONObject responseJSON = new AXE.Builder(driver, scriptUrl)
 				.options("{ rules: { 'accesskeys': { enabled: false } } }")
 				.analyze();
@@ -231,7 +233,6 @@ public class ExampleTest {
 			assertTrue("No violations found", true);
 		} else {
 			AXE.writeResults(testName.getMethodName(), responseJSON);
-
 			assertTrue(AXE.report(violations), false);
 		}
 	}
@@ -242,7 +243,7 @@ public class ExampleTest {
 	@Test
 	public void testAccessibilityWithSelector() {
 //		driver.get("http://localhost:5005");
-		driver.get("https://www.amazon.de/");
+		driver.get("https://www.ebay.de/");
 		JSONObject responseJSON = new AXE.Builder(driver, scriptUrl)
 				.include("title")
 				.include("p")
@@ -255,7 +256,6 @@ public class ExampleTest {
 			assertTrue("No violations found", true);
 		} else {
 			AXE.writeResults(testName.getMethodName(), responseJSON);
-
 			assertTrue(AXE.report(violations), false);
 		}
 	}
@@ -266,7 +266,7 @@ public class ExampleTest {
 	@Test
 	public void testAccessibilityWithIncludesAndExcludes() {
 //		driver.get("http://localhost:5005/include-exclude.html");
-		driver.get("https://www.amazon.de/");
+		driver.get("https://www.ebay.de/");
 		JSONObject responseJSON = new AXE.Builder(driver, scriptUrl)
 				.include("body")
 				.exclude("h1")
@@ -289,7 +289,7 @@ public class ExampleTest {
 	@Test
 	public void testAccessibilityWithWebElement() {
 //		driver.get("http://localhost:5005");
-		driver.get("https://www.amazon.de/");
+		driver.get("https://www.ebay.de/");
 		JSONObject responseJSON = new AXE.Builder(driver, scriptUrl)
 				.analyze(driver.findElement(By.tagName("p")));
 
@@ -309,8 +309,8 @@ public class ExampleTest {
 	 */
 	@Test
 	public void testAccessibilityWithShadowElement() {
-		driver.get("http://localhost:5005/shadow-error.html");
-
+//		driver.get("http://localhost:5005/shadow-error.html");
+		driver.get("https://www.ebay.de/");
 		JSONObject responseJSON = new AXE.Builder(driver, scriptUrl).analyze();
 
 		violations = responseJSON.getJSONArray("violations");
@@ -320,7 +320,7 @@ public class ExampleTest {
 		JSONArray target = ((JSONObject)nodes.get(0)).getJSONArray("target");
 
 		if (violations.length() == 1) {
-//			assertTrue(AXE.report(violations), true);
+			assertTrue(AXE.report(violations), true);
 			assertEquals(String.valueOf(target), "[[\"#upside-down\",\"ul\"]]");
 		} else {
 			AXE.writeResults(testName.getMethodName(), responseJSON);
@@ -332,7 +332,7 @@ public class ExampleTest {
 	@Test
 	public void testAxeErrorHandling() {
 //		driver.get("http://localhost:5005/");
-		driver.get("https://www.amazon.de/");
+		driver.get("https://www.ebay.de/");
 		URL errorScript = ExampleTest.class.getResource("/axe-error.js");
 		AXE.Builder builder = new AXE.Builder(driver, errorScript);
 
@@ -345,6 +345,7 @@ public class ExampleTest {
 			didError = true;
 		}
 
+		prepareReport(testName.getMethodName());
 		assertTrue("Did raise axe-core error", didError);
 	}
 
