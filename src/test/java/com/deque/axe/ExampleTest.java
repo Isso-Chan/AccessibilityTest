@@ -39,12 +39,33 @@ public class ExampleTest {
 	private WebDriver driver;
 
 	private static final URL scriptUrl = ExampleTest.class.getResource("/axe.min.js");
+	JSONArray violations;
+	static File f;
+	static BufferedWriter bw;
+
+	/**
+	 * Instantiate report before all tests start
+	 */
+	@BeforeClass
+	public static void setUp1() {
+
+		f = new File("Accessibility_Test-Report.htm");
+		try {
+			bw = new BufferedWriter(new FileWriter(f));
+			bw.write("<html>");
+			bw.write("<body>");
+			bw.write("<img height=\"100\" width=\"200\" src = \"https://dynomapper.com/images/Accessibility_Testing2.jpg\">");
+			bw.write("<h1>Accessibility Test Report for OAMan");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	/**
 	 * Instantiate the WebDriver and navigate to the test site
 	 */
 	@Before
-	public void setUp() {
+	public void setUp() throws IOException {
 		// ChromeDriver needed to test for Shadow DOM testing support
 		WebDriverManager.chromedriver().setup();
 		driver = new ChromeDriver();
@@ -54,26 +75,121 @@ public class ExampleTest {
 	 * Ensure we close the WebDriver after finishing
 	 */
 	@After
-	public void tearDown() {
+	public void tearDown() throws IOException {
 		driver.quit();
 	}
+
+	/**
+	 * Ensure we close the report  after all tests finished
+	 */
+	@AfterClass
+	public static void tearDown2() throws IOException {
+		bw.write("</body>");
+		bw.write("</html>");
+		bw.close();
+	}
+
 
 	/**
 	 * Basic test
 	 */
 	@Test
-	public void testAccessibility() {
+	public void testAccessibility(){
 //		driver.get("http://localhost:5005");
-		driver.get("https://www.amazon.de/");
+		driver.get("https://www.ebay.de/");
 		JSONObject responseJSON = new AXE.Builder(driver, scriptUrl).analyze();
 
-		JSONArray violations = responseJSON.getJSONArray("violations");
+		violations = responseJSON.getJSONArray("violations");
+		prepareReport(testName.getMethodName());
 
 		if (violations.length() == 0) {
 			assertTrue("No violations found", true);
 		} else {
 			AXE.writeResults(testName.getMethodName(), responseJSON);
 			assertTrue(AXE.report(violations), false);
+		}
+	}
+
+	//added later from https://www.youtube.com/watch?v=vKMnOSa8xcg
+	/**
+	 * This method works separately from other classes, after running, generates a report with "methodName.htm"
+	 * @throws IOException
+	 */
+	@Test
+	public void testAccessibility2() {
+		driver.get("https://www.ebay.de/");
+		JSONObject responseJSON = (new AXE.Builder(driver, scriptUrl)).analyze();
+		violations = responseJSON.getJSONArray("violations");
+		prepareReport(testName.getMethodName());
+
+		if (violations.length() == 0) {
+			Assert.assertTrue("No violations found", true);
+		} else {
+			AXE.writeResults(testName.getMethodName(), responseJSON);
+			assertTrue(AXE.report(violations), false);
+		}
+//		WebDriverManager.chromedriver().setup();
+//		ChromeOptions options = new ChromeOptions();
+////		options.addArguments(new String[]{"headless"});
+//		options.addArguments(new String[]{"window-size=1200x600"});
+//		WebDriver driver = new ChromeDriver(options);
+//		driver.get(URL);
+//		driver.get("https://www.ebay.de/");
+//		File f = new File(testName.getMethodName()+".htm");
+//		prepareReport(f);
+//		BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+//		bw.write("<html>");
+//		bw.write("<body>");
+//		bw.write("<img height=\"100\" width=\"200\" src = \"https://dynomapper.com/images/Accessibility_Testing2.jpg\">");
+//		bw.write("<h1>Accessibility Report for " + driver.getCurrentUrl() + "</h1>");
+//		JSONObject responseJSON = (new AXE.Builder(driver, scriptUrl)).analyze();
+//		violations = responseJSON.getJSONArray("violations");
+//prepareReport();
+//		for(int i = 0; i < violations.length(); ++i) {
+//			bw.write("<table border=\"1\">");
+//			JSONObject jsonObject1 = violations.getJSONObject(i);
+//			bw.write("<tr> <td> <p> <b>Impact</b> - " + jsonObject1.optString("impact") + "</p> </td> </tr>");
+//			bw.write("<tr> <td> <p> <b>Help </b> -  " + jsonObject1.optString("help") + "</p> </td> </tr>");
+//			bw.write("<tr> <td> <p> <b> Description</b> -  " + jsonObject1.optString("description") + "</p> </td> </tr>");
+//			bw.write("<tr> <td> <p> <b> ID</b> -  " + jsonObject1.optString("id") + "</p> </td> </tr>");
+//			bw.write("<tr> <td> <p> <b> Help Url</b> -  " + jsonObject1.optString("helpUrl") + "</p> </td> </tr>");
+//			bw.write("</table>");
+//			bw.write("</br>");
+//		}
+//
+//		bw.write("</body>");
+//		bw.write("</html>");
+//		bw.close();
+//		Desktop.getDesktop().browse(f.toURI());
+//		driver.close();
+//		if (violations.length() == 0) {
+//			Assert.assertTrue("No violations found", true);
+//		} else {
+//			AXE.writeResults(testName.getMethodName(), responseJSON);
+//			assertTrue(AXE.report(violations), false);
+//		}
+	}
+
+	public void prepareReport(String testName) {
+		try {
+			bw.write("<tr> <td> <p> <b>TEST NAME</b> : "+testName+" </p> </td> </tr>");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		for(int i = 0; i < violations.length(); ++i) {
+			try {
+				bw.write("<table border=\"1\">");
+				JSONObject jsonObject1 = violations.getJSONObject(i);
+				bw.write("<tr> <td> <p> <b>Impact</b> - " + jsonObject1.optString("impact") + "</p> </td> </tr>");
+				bw.write("<tr> <td> <p> <b>Help </b> -  " + jsonObject1.optString("help") + "</p> </td> </tr>");
+				bw.write("<tr> <td> <p> <b> Description</b> -  " + jsonObject1.optString("description") + "</p> </td> </tr>");
+				bw.write("<tr> <td> <p> <b> ID</b> -  " + jsonObject1.optString("id") + "</p> </td> </tr>");
+				bw.write("<tr> <td> <p> <b> Help Url</b> -  " + jsonObject1.optString("helpUrl") + "</p> </td> </tr>");
+				bw.write("</table>");
+				bw.write("</br>");
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
@@ -87,7 +203,8 @@ public class ExampleTest {
 				.skipFrames()
 				.analyze();
 
-		JSONArray violations = responseJSON.getJSONArray("violations");
+		violations = responseJSON.getJSONArray("violations");
+		prepareReport(testName.getMethodName());
 
 		if (violations.length() == 0) {
 			assertTrue("No violations found", true);
@@ -107,7 +224,8 @@ public class ExampleTest {
 				.options("{ rules: { 'accesskeys': { enabled: false } } }")
 				.analyze();
 
-		JSONArray violations = responseJSON.getJSONArray("violations");
+		violations = responseJSON.getJSONArray("violations");
+		prepareReport(testName.getMethodName());
 
 		if (violations.length() == 0) {
 			assertTrue("No violations found", true);
@@ -130,7 +248,8 @@ public class ExampleTest {
 				.include("p")
 				.analyze();
 
-		JSONArray violations = responseJSON.getJSONArray("violations");
+		violations = responseJSON.getJSONArray("violations");
+		prepareReport(testName.getMethodName());
 
 		if (violations.length() == 0) {
 			assertTrue("No violations found", true);
@@ -153,7 +272,8 @@ public class ExampleTest {
 				.exclude("h1")
 				.analyze();
 
-		JSONArray violations = responseJSON.getJSONArray("violations");
+		violations = responseJSON.getJSONArray("violations");
+		prepareReport(testName.getMethodName());
 
 		if (violations.length() == 0) {
 			assertTrue("No violations found", true);
@@ -173,7 +293,8 @@ public class ExampleTest {
 		JSONObject responseJSON = new AXE.Builder(driver, scriptUrl)
 				.analyze(driver.findElement(By.tagName("p")));
 
-		JSONArray violations = responseJSON.getJSONArray("violations");
+		violations = responseJSON.getJSONArray("violations");
+		prepareReport(testName.getMethodName());
 
 		if (violations.length() == 0) {
 			assertTrue("No violations found", true);
@@ -192,7 +313,8 @@ public class ExampleTest {
 
 		JSONObject responseJSON = new AXE.Builder(driver, scriptUrl).analyze();
 
-		JSONArray violations = responseJSON.getJSONArray("violations");
+		violations = responseJSON.getJSONArray("violations");
+		prepareReport(testName.getMethodName());
 
 		JSONArray nodes = ((JSONObject)violations.get(0)).getJSONArray("nodes");
 		JSONArray target = ((JSONObject)nodes.get(0)).getJSONArray("target");
@@ -238,7 +360,8 @@ public class ExampleTest {
 				.include("p")
 				.analyze();
 
-		JSONArray violations = responseJSON.getJSONArray("violations");
+		violations = responseJSON.getJSONArray("violations");
+		prepareReport(testName.getMethodName());
 
 		if (violations.length() == 0) {
 			assertTrue("No violations found", true);
@@ -260,7 +383,8 @@ public class ExampleTest {
 				.exclude("div")
 				.analyze();
 
-		JSONArray violations = responseJSON.getJSONArray("violations");
+		violations = responseJSON.getJSONArray("violations");
+		prepareReport(testName.getMethodName());
 
 		JSONArray nodes = ((JSONObject)violations.get(0)).getJSONArray("nodes");
 		JSONArray target = ((JSONObject)nodes.get(0)).getJSONArray("target");
@@ -273,53 +397,6 @@ public class ExampleTest {
 		}
 	}
 
-	//added later from https://www.youtube.com/watch?v=vKMnOSa8xcg
-	/**
-	 * This method works seperately from other classes, after running, generates a "Accessibility Report1,htm"
-	 * @throws IOException
-	 */
-	@Test
-	public void testAccessibility2() throws IOException {
-		WebDriverManager.chromedriver().setup();
-		ChromeOptions options = new ChromeOptions();
-//		options.addArguments(new String[]{"headless"});
-		options.addArguments(new String[]{"window-size=1200x600"});
-		WebDriver driver = new ChromeDriver(options);
-//		driver.get(URL);
-		driver.get("https://www.ebay.de/");
-		File f = new File(testName.getMethodName()+".htm");
-		BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-		bw.write("<html>");
-		bw.write("<body>");
-		bw.write("<img height=\"100\" width=\"200\" src = \"https://dynomapper.com/images/Accessibility_Testing2.jpg\">");
-		bw.write("<h1>Accessibility Report for " + driver.getCurrentUrl() + "</h1>");
-		JSONObject responseJSON = (new AXE.Builder(driver, scriptUrl)).analyze();
-		JSONArray violations = responseJSON.getJSONArray("violations");
 
-		for(int i = 0; i < violations.length(); ++i) {
-			bw.write("<table border=\"1\">");
-			JSONObject jsonObject1 = violations.getJSONObject(i);
-			bw.write("<tr> <td> <p> <b>Impact</b> - " + jsonObject1.optString("impact") + "</p> </td> </tr>");
-			bw.write("<tr> <td> <p> <b>Help </b> -  " + jsonObject1.optString("help") + "</p> </td> </tr>");
-			bw.write("<tr> <td> <p> <b> Description</b> -  " + jsonObject1.optString("description") + "</p> </td> </tr>");
-			bw.write("</table>");
-			bw.write("</br>");
-//			System.out.println("jsonObject1.toString() = " + jsonObject1.toString());
-//			bw.write(jsonObject1.toString());
-		}
-
-		bw.write("</body>");
-		bw.write("</html>");
-		bw.close();
-		Desktop.getDesktop().browse(f.toURI());
-		driver.close();
-		if (violations.length() == 0) {
-			Assert.assertTrue("No violations found", true);
-		} else {
-			AXE.writeResults(testName.getMethodName(), responseJSON);
-			Assert.assertTrue(AXE.report(violations), true);
-		}
-
-	}
 }
 

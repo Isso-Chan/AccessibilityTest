@@ -1,8 +1,5 @@
-# [DEPRECATED] aXe Selenium (Java) Integration
 
-[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
-
-> This repository has been deprecated. The package has been moved to [axe-core-maven-html](https://github.com/dequelabs/axe-core-maven-html).
+> The package has been moved to [axe-core-maven-html](https://github.com/dequelabs/axe-core-maven-html).
 
 [![CircleCI](https://circleci.com/gh/dequelabs/axe-selenium-java.svg?style=svg)](https://circleci.com/gh/dequelabs/axe-selenium-java)
 
@@ -61,13 +58,6 @@ The `Builder` class allows tests to chain configuration and analyze pages. The c
 
 The aXe documentation should be consulted for more details on customizing and analyzing calls to `axe.run`.
 
-## Contributing
-
-In order to contribute, you must accept the [contributor licence agreement](https://cla-assistant.io/dequelabs/axe-selenium-java) (CLA). Acceptance of this agreement will be checked automatically and pull requests without a CLA cannot be merged.
-
-## Deployment (Maintainers Only)
-
-This package is deployed to Maven Central via OSSRH. To deploy this package, follow [these instructions on StackOverflow](https://stackoverflow.com/a/42917618).
 
 Additionally add your OSSRH credentials to your `~/.m2/settings.xml` file as such:
 
