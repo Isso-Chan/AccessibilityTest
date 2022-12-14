@@ -310,7 +310,7 @@ public class ExampleTest {
 	@Test
 	public void testAccessibilityWithShadowElement() {
 //		driver.get("http://localhost:5005/shadow-error.html");
-		driver.get("https://www.ebay.de/");
+		driver.get("https://www.ebay.de/shadow-error.html");
 		JSONObject responseJSON = new AXE.Builder(driver, scriptUrl).analyze();
 
 		violations = responseJSON.getJSONArray("violations");
@@ -320,12 +320,11 @@ public class ExampleTest {
 		JSONArray target = ((JSONObject)nodes.get(0)).getJSONArray("target");
 
 		if (violations.length() == 1) {
-			assertTrue(AXE.report(violations), true);
+			assertTrue(AXE.report(violations), false);
 			assertEquals(String.valueOf(target), "[[\"#upside-down\",\"ul\"]]");
 		} else {
 			AXE.writeResults(testName.getMethodName(), responseJSON);
-			assertTrue("No violations found", false);
-
+			assertTrue("No violations found", true);
 		}
 	}
 
@@ -355,7 +354,7 @@ public class ExampleTest {
 	@Test
 	public void testAccessibilityWithFewInclude() {
 //		driver.get("http://localhost:5005/include-exclude.html");
-		driver.get("https://www.ebay.de/");
+		driver.get("https://www.ebay.de/include-exclude.html");
 		JSONObject responseJSON = new AXE.Builder(driver, scriptUrl)
 				.include("div")
 				.include("p")
@@ -378,7 +377,7 @@ public class ExampleTest {
 	@Test
 	public void testAccessibilityWithIncludesAndExcludesWithViolation() {
 //		driver.get("http://localhost:5005/include-exclude.html");
-		driver.get("https://www.ebay.de/");
+		driver.get("https://www.ebay.de/include-exclude.html");
 		JSONObject responseJSON = new AXE.Builder(driver, scriptUrl)
 				.include("body")
 				.exclude("div")
